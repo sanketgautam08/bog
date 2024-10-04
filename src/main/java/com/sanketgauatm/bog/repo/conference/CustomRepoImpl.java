@@ -1,5 +1,7 @@
 package com.sanketgauatm.bog.repo.conference;
 
+import com.sanketgauatm.bog.dto.ConferenceDto;
+import com.sanketgauatm.bog.mapper.ConferenceDtoMapper;
 import com.sanketgauatm.bog.model.Conference;
 import com.sanketgauatm.bog.model.User;
 import org.slf4j.Logger;
@@ -7,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -99,6 +102,11 @@ public class CustomRepoImpl implements CustomRepo {
         }else {
             return false;
         }
+    }
+
+    @Override
+    public List<ConferenceDto> getAllConferences() {
+        return jdbcClient.sql("select * from conference").query(new ConferenceDtoMapper()).list();
     }
 
     private boolean hasConferenceHappened(int conferenceId) {

@@ -1,6 +1,7 @@
 package com.sanketgauatm.bog.repo.feedback;
 
 import com.sanketgauatm.bog.dto.FeedBackDto;
+import com.sanketgauatm.bog.mapper.FeedbackDtoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -19,8 +20,8 @@ public class CustomFeedbackRepoImpl implements CustomFeedbackRepo  {
 
     @Override
     public List<FeedBackDto> getAllUserFeedbacks(int userId) {
-        String sql = "Select conference_id, feedback_text, rating, user_name from feedback where user_id=?";
-        return jdbcClient.sql(sql).params(userId).query(FeedBackDto.class).list();
+        String sql = "Select * from feedback where user_id=?";
+        return jdbcClient.sql(sql).params(userId).query(new FeedbackDtoMapper()).list();
 
     }
 
@@ -30,7 +31,7 @@ public class CustomFeedbackRepoImpl implements CustomFeedbackRepo  {
                 select * from feedback
                 where conference_id = ?
                 """;
-        return jdbcClient.sql(sql).param(conferenceId).query(FeedBackDto.class).list();
+        return jdbcClient.sql(sql).param(conferenceId).query(new FeedbackDtoMapper()).list();
     }
 
 }

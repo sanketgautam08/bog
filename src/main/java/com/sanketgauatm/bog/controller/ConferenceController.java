@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,12 +29,12 @@ public class ConferenceController {
 
     @GetMapping("/")
     public ResponseEntity<List<ConferenceDto>> getAllConferences() {
-        List<Conference> allConferences = conferenceRepo.findAll();
-       List<ConferenceDto> conferences = new ArrayList<>();
-        for(Conference c : allConferences) {
-            conferences.add(new ConferenceDto(c.getId(), c.getName(), c.getDescription(),c.getRoom().getId(), c.getDateTime()));
-        }
-        return new ResponseEntity<>(conferences, HttpStatusCode.valueOf(200));
+       try{
+           return new ResponseEntity<>(conferenceRepo.getAllConferences(), HttpStatusCode.valueOf(200));
+       }catch (Exception e){
+           LOGGER.error("Error fetching all conferences.\n{}",e.getMessage());
+           return new ResponseEntity<>(null,HttpStatusCode.valueOf(400));
+       }
     }
 
     @GetMapping("/available/{id}")

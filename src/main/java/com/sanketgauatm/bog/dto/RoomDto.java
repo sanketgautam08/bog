@@ -10,11 +10,14 @@ public class RoomDto {
     private String name;
     private String location;
     private int capacity;
+    private int createdByUserId;
 
-    public RoomDto(int id, String name, String location, int capacity) {
+    public RoomDto(int id, String name, String location, int capacity, int createdByUserId) {
         this.id = id;
         this.name = name;
         this.location = location;
         this.capacity = capacity;
+        this.createdByUserId = createdByUserId;
+
     }
 }

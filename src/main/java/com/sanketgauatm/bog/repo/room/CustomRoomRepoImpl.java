@@ -1,5 +1,7 @@
 package com.sanketgauatm.bog.repo.room;
 
+import com.sanketgauatm.bog.dto.RoomDto;
+import com.sanketgauatm.bog.mapper.RoomDtoMapper;
 import com.sanketgauatm.bog.model.Room;
 import com.sanketgauatm.bog.model.Status;
 import org.slf4j.Logger;
@@ -7,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -28,6 +31,11 @@ public class CustomRoomRepoImpl implements CustomRoomRepo {
             LOGGER.error("Error while checking room_capacity\n{}", e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public List<RoomDto> getAllRooms() {
+        return jdbcClient.sql("select * from rooms").query(new RoomDtoMapper()).list();
     }
 
     @Override

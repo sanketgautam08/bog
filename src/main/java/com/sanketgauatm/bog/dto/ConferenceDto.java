@@ -12,13 +12,13 @@ public class ConferenceDto {
     private String name;
     private String description;
     private int roomId;
-    private LocalDate startTime;
+    private LocalDate date;
 
-    public ConferenceDto(int id, String name, String description, int roomId, LocalDate startTime) {
+    public ConferenceDto(int id, String name, String description, int roomId, LocalDate date) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.roomId = roomId;
-        this.startTime = startTime;
+        this.date = date;
     }
 }

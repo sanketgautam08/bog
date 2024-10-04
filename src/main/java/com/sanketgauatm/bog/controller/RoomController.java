@@ -3,11 +3,12 @@ package com.sanketgauatm.bog.controller;
 import com.sanketgauatm.bog.dto.RoomDto;
 import com.sanketgauatm.bog.model.Room;
 import com.sanketgauatm.bog.repo.room.RoomRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -15,6 +16,7 @@ import java.util.List;
 public class RoomController {
 
     private final RoomRepo roomRepo;
+    private final Logger LOGGER = LoggerFactory.getLogger(RoomController.class);
 
     public RoomController(RoomRepo roomRepo) {
         this.roomRepo = roomRepo;
@@ -22,12 +24,12 @@ public class RoomController {
 
     @GetMapping("/")
     public ResponseEntity<List<RoomDto>> getAllRooms() {
-        List<Room> rooms = roomRepo.findAll();
-        List<RoomDto> roomDtos = new ArrayList<>();
-        for(Room room : rooms) {
-            roomDtos.add(new RoomDto(room.getId(), room.getName(),room.getLocation(),room.getMaxCapacity()));
+        try{
+            return new ResponseEntity<>(roomRepo.getAllRooms(), HttpStatusCode.valueOf(200));
+        }catch(Exception e){
+            LOGGER.error("Error while fetching rooms\n {}", e.getMessage());
+            return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
         }
-        return new ResponseEntity<>(roomDtos, HttpStatusCode.valueOf(200));
     }
 
     @PostMapping("/")

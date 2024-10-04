@@ -28,8 +28,7 @@ public class FeedbackController {
     public ResponseEntity<List<FeedBackDto>> getFeedback(@PathVariable int userId) {
         Optional<User> user = userRepo.findById(userId);
         if(user.isPresent()) {
-            List<FeedBackDto> feedbacks = feedbackRepo.getAllUserFeedbacks(userId);
-            return ResponseEntity.ok(feedbacks);
+            return ResponseEntity.ok(feedbackRepo.getAllUserFeedbacks(userId));
         }else{
             LOGGER.error("User not found with id {}", userId);
             return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));

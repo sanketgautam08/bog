@@ -10,4 +10,11 @@ public class FeedBackDto {
     private String feedbackText;
     private int rating;
     private String userName;
+
+    public FeedBackDto(int conferenceId, String feedbackText, int rating, String userName) {
+        this.conferenceId = conferenceId;
+        this.feedbackText = feedbackText;
+        this.rating = rating;
+        this.userName = userName;
+    }
 }
