@@ -37,11 +37,8 @@ public class FeedbackController {
 
     @GetMapping("/conference/{id}")
     public ResponseEntity<List<FeedBackDto>> getAllConferenceFeedback(@PathVariable int id) {
-        try{
-            return ResponseEntity.ok(feedbackRepo.getAllFeedbacksForConference(id));
-        }catch(Exception e) {
-            return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
-        }
+        var feedbacks = feedbackRepo.getAllFeedbacksForConference(id);
+        return feedbacks.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(null, HttpStatusCode.valueOf(400)));
     }
 
 }

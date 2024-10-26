@@ -1,6 +1,7 @@
 package com.sanketgauatm.bog.mapper;
 
 import com.sanketgauatm.bog.dto.RoomDto;
+import com.sanketgauatm.bog.model.Status;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -14,7 +15,8 @@ public class RoomDtoMapper implements RowMapper<RoomDto> {
                 rs.getString("name"),
                 rs.getString("location"),
                 rs.getInt("max_capacity"),
-                rs.getInt("created_by_user_id")
+                rs.getInt("user_id"),
+                Status.valueOf(rs.getString("status"))
         );
     }
 }

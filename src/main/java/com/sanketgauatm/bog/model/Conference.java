@@ -3,10 +3,8 @@ package com.sanketgauatm.bog.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 
 import java.util.Set;
@@ -17,9 +15,8 @@ import java.util.Set;
 @Setter
 public class Conference {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-
     @Id
+    @SequenceGenerator(name="conference_seq", sequenceName="conference_seq", allocationSize=1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "conference_id")
     private Integer id;
@@ -37,9 +34,12 @@ public class Conference {
     )
     private Set<User> users = new HashSet<>();
 
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @Column(name = "date_time")
-    private LocalDate dateTime;
+//    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Column(name = "start_date_time")
+    private LocalDateTime startDateTime;
+
+    @Column(name = "end_date_time")
+    private LocalDateTime endDateTime;
 
     @OneToOne(mappedBy = "feedbackConference")
     private Feedback feedback;
@@ -49,11 +49,12 @@ public class Conference {
 
     public Conference(){}
 
-    public Conference(String name, String description, Room room, LocalDate dateTime) {
+    public Conference(String name, String description, Room room, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this.name = name;
         this.description = description;
         this.room = room;
-        this.dateTime = dateTime;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
     }
 
     public Conference(int id){

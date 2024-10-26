@@ -24,8 +24,8 @@ public class Room {
     private Set<Conference> conferences;
 
 
-    @OneToOne
-    @JoinColumn(name = "created_by_user_id", referencedColumnName = "user_id" )
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User createdBy;
 
     public Room(){}
@@ -35,6 +35,12 @@ public class Room {
         this.location = location;
         this.maxCapacity = maxCapacity;
         this.createdBy = createdBy;
+    }
+
+    public Room(String name, String location, int maxCapacity) {
+        this.name = name;
+        this.location = location;
+        this.maxCapacity = maxCapacity;
     }
 
 }

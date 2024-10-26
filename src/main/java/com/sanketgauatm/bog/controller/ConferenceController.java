@@ -1,10 +1,11 @@
 package com.sanketgauatm.bog.controller;
 
-import com.sanketgauatm.bog.model.Conference;
 import com.sanketgauatm.bog.dto.ConferenceDto;
+import com.sanketgauatm.bog.model.Conference;
+import com.sanketgauatm.bog.model.Status;
 import com.sanketgauatm.bog.model.User;
-import com.sanketgauatm.bog.repo.room.RoomRepo;
 import com.sanketgauatm.bog.repo.conference.ConferenceRepo;
+import com.sanketgauatm.bog.repo.room.RoomRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -49,11 +50,28 @@ public class ConferenceController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Conference> createConference(@RequestBody Conference conference) {
-        Conference available = conferenceRepo.findByRoomAndDateTime(conference.getRoom(), conference.getDateTime());
-        if (available == null) {
-            return new ResponseEntity<>(conferenceRepo.save(conference), HttpStatusCode.valueOf(201));
-        }else {
+    public ResponseEntity<ConferenceDto> createConference(@RequestBody Conference conference) {
+        Optional<Status> roomStatus = roomRepo.getRoomStatus(conference.getRoom().getId());
+        if (roomStatus.isEmpty() || roomStatus.get().equals(Status.UNDER_CONSTRUCTION)) {
+            if (roomStatus.isEmpty()) {
+                LOGGER.error("Couldn't confirm the availability of the selected room.");
+            } else {
+                LOGGER.error("Selected room is not under construction.");
+            }
+            return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
+        }
+        boolean available = conferenceRepo.checkConferenceAvailability(conference);
+        if (available) {
+            try {
+                int newId = conferenceRepo.generateNewId();
+                conference.setId(newId);
+                Optional<ConferenceDto> newConference = conferenceRepo.insertIntoConference(conference);
+                return newConference.isPresent() ? ResponseEntity.ok(newConference.get()) : new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
+            } catch (Exception e) {
+                LOGGER.error("Error creating new conference.\n{}", e.getMessage());
+                return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
+            }
+        } else {
             LOGGER.error("Conference already exists in the selected room for the chosen date.");
             return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
         }

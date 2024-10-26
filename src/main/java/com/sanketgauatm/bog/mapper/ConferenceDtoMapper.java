@@ -14,7 +14,8 @@ public class ConferenceDtoMapper implements RowMapper<ConferenceDto> {
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getInt("room_id"),
-                rs.getDate("date_time").toLocalDate()
+                rs.getTimestamp("start_date_time").toLocalDateTime(),
+                rs.getTimestamp("end_date_time").toLocalDateTime()
                 );
     }
 }

@@ -25,8 +25,8 @@ public class User {
     @ManyToMany(mappedBy = "users")
     private Set<Conference> conferences = new HashSet<>();
 
-    @OneToOne(mappedBy = "createdBy")
-    private Room room;
+    @OneToMany(mappedBy = "createdBy")
+    private Set<Room> room;
 
     @OneToOne(mappedBy = "feedbackUser")
     private Feedback feedback;
@@ -36,9 +36,6 @@ public class User {
     public User() {
     }
 
-    public void setGender(String gender){
-        this.gender = Gender.valueOf(gender);
-    }
     public User(String firstName, String lastName, Gender gender, LocalDate dob) {
         this.firstName = firstName;
         this.LastName = lastName;

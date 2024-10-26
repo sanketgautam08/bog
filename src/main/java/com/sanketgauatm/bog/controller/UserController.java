@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -22,17 +23,21 @@ public class UserController {
     }
     @GetMapping("/")
     public ResponseEntity<List<UserDto>> getAllUsers(){
-
-        try{
-            return ResponseEntity.ok(userRepo.getAllUsers());
-        }catch (Exception e){
-            LOGGER.error("Error occurred while fetching users\n{}",e.getMessage());
+        Optional<List<UserDto>> users = userRepo.getAllUsers();
+        if(users.isPresent()){
+            return ResponseEntity.ok(users.get());
+        }else{
             return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
         }
     }
 
     @PostMapping("/")
-    public User saveUser(@RequestBody User user){
-        return this.userRepo.save(user);
+    public ResponseEntity<User> saveUser(@RequestBody User user){
+        try{
+            return ResponseEntity.ok(this.userRepo.save(user));
+        }catch (Exception e){
+            LOGGER.error(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
+        }
     }
 }

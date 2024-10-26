@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class CustomRoomRepoImpl implements CustomRoomRepo {
@@ -20,6 +21,21 @@ public class CustomRoomRepoImpl implements CustomRoomRepo {
 
     public CustomRoomRepoImpl(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
+    }
+
+    @Override
+    public boolean createRoom(Room room) {
+        String sql = """
+                INSERT INTO ROOMS(user_id, name, location, status, max_capacity)
+                values(?,?,?,?,?)
+                """;
+        try{
+            jdbcClient.sql(sql).params(room.getCreatedBy().getId(), room.getName(), room.getLocation(), room.getStatus(), room.getMaxCapacity()).update();
+            return true;
+        }catch(Exception e){
+            LOGGER.error("Error creating room: {}", e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -47,16 +63,16 @@ public class CustomRoomRepoImpl implements CustomRoomRepo {
                         select room_id, count(room_id) as v
                         from conference
                         where room_id = ?
-                        group by room_id)
+                        group by room_id) as riv
                     """;
             int maxAttendees = jdbcClient.sql(sql).param(room.getId()).query(Integer.class).single();
             if(maxAttendees > room.getMaxCapacity()){
-                LOGGER.error("max_caacity smaller than number of attendees");
+                LOGGER.error("max_capacity smaller than number of attendees");
                 return false;
             }
         }
         if(room.getStatus().equals(Status.UNDER_CONSTRUCTION)){
-            boolean isConferenceDue = jdbcClient.sql("Select count(1) from conference where room_id = ? and date_time > now() ").param(room.getId()).query(Integer.class).single() > 0 ;
+            boolean isConferenceDue = jdbcClient.sql("Select count(1) from conference where room_id = ? and start_date_time > now() ").param(room.getId()).query(Integer.class).single() > 0 ;
             if(isConferenceDue){
                 LOGGER.error("Room can't be under construction. There are pending conference(s) in the room.");
                 return false;
@@ -65,10 +81,15 @@ public class CustomRoomRepoImpl implements CustomRoomRepo {
         return true;
     }
 
-
-
-
-
+    @Override
+    public Optional<Status> getRoomStatus(Integer roomId) {
+        try{
+            return Optional.of(jdbcClient.sql("select status from rooms where room_id = ?").param(roomId).query(Status.class).single());
+        }catch (Exception e){
+            LOGGER.error("Error getting room status: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
 
 
 }

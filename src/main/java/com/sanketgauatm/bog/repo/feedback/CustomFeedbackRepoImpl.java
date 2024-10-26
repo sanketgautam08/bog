@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CustomFeedbackRepoImpl implements CustomFeedbackRepo  {
@@ -26,12 +27,17 @@ public class CustomFeedbackRepoImpl implements CustomFeedbackRepo  {
     }
 
     @Override
-    public List<FeedBackDto> getAllFeedbacksForConference(int conferenceId) {
+    public Optional<List<FeedBackDto>> getAllFeedbacksForConference(int conferenceId) {
         String sql = """
                 select * from feedback
                 where conference_id = ?
                 """;
-        return jdbcClient.sql(sql).param(conferenceId).query(new FeedbackDtoMapper()).list();
+        try{
+            return Optional.of(jdbcClient.sql(sql).param(conferenceId).query(new FeedbackDtoMapper()).list());
+        }catch(Exception e){
+            LOGGER.error("Error while getting user feedbacks\n{}",e.getMessage());
+            return Optional.empty();
+        }
     }
 
 }

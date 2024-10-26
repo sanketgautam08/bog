@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @Repository
@@ -55,7 +56,7 @@ public class CustomRepoImpl implements CustomRepo {
     public boolean updateConferenceDetails(Conference conference) {
         String sql = """
                 update conference
-                set name=:name, description= :description2, room_id = :roomId, date_time= :dateTime
+                set name=:name, description= :description2, room_id = :roomId, start_date_time= :startDateTime, end_date_time= :endDateTime
                 where conference_id = :conferenceId
                 """;
         try {
@@ -63,7 +64,8 @@ public class CustomRepoImpl implements CustomRepo {
                     "name", conference.getName(),
                     "description", conference.getDescription(),
                     "roomId", conference.getRoom().getId(),
-                    "dateTime", conference.getDateTime(),
+                    "startDateTime", conference.getStartDateTime(),
+                    "endDateTime", conference.getEndDateTime(),
                     "conferenceId", conference.getId()
             )).update();
             LOGGER.info("Updated conference details");
@@ -86,7 +88,7 @@ public class CustomRepoImpl implements CustomRepo {
     @Override
     public boolean deleteConference(int conferenceId) {
         boolean hasConferenceHappened = hasConferenceHappened(conferenceId);
-        if(!hasConferenceHappened){
+        if(hasConferenceHappened){
             return false;
         }
         boolean isDeletedFromConUser = deleteFromConferenceUsers(conferenceId);
@@ -109,11 +111,64 @@ public class CustomRepoImpl implements CustomRepo {
         return jdbcClient.sql("select * from conference").query(new ConferenceDtoMapper()).list();
     }
 
+    @Override
+    public boolean checkConferenceAvailability(Conference conference) {
+        String sql = """
+                select count(1) from conference c
+                where room_id = :roomId
+                and (start_date_time  between :startDateTime and :endDateTime
+                or end_date_time  between :startDateTime and :endDateTime
+                or :startDateTime between start_date_time and end_date_time
+                or :endDateTime between start_date_time and end_date_time)
+                """;
+
+        try{
+            int count =  jdbcClient.sql(sql)
+                    .params(Map.of("roomId", conference.getRoom().getId(),"startDateTime", conference.getStartDateTime(), "endDateTime", conference.getEndDateTime()))
+                    .query(Integer.class).single();
+            return count == 0;
+        }catch(Exception e){
+            LOGGER.error("Error while checking conference availability\n{}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public int generateNewId() {
+        return jdbcClient.sql("select nextval('conference_seq')").query(Integer.class).single();
+    }
+
+    @Override
+    public Optional<ConferenceDto> insertIntoConference(Conference conference) {
+        String sql = """
+                INSERT INTO conference(conference_id, start_date_time, end_date_time, room_id, description, name) VALUES
+                (?,?,?,?,?,?)
+                """;
+        try{
+            boolean added = jdbcClient.sql(sql).params(
+                    conference.getId(),
+                    conference.getStartDateTime(),
+                    conference.getEndDateTime(),
+                    conference.getRoom().getId(),
+                    conference.getDescription(),
+                    conference.getName()
+            ).update() == 1 ;
+            if(added){
+                return Optional.of(new ConferenceDto(conference.getId(), conference.getName(), conference.getDescription(), conference.getRoom().getId(), conference.getStartDateTime(), conference.getEndDateTime()));
+            }else{
+                return Optional.empty();
+            }
+        }catch (Exception e){
+            LOGGER.error("Error while inserting into conference\n{}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
     private boolean hasConferenceHappened(int conferenceId) {
         String sql = """
                 select count(1) from conference where
                 conference_id = ?
-                and date_time > current_date
+                and start_date_time < current_date
                 """;
         return jdbcClient.sql(sql).params(conferenceId).query(Integer.class).single() > 0;
 

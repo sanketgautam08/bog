@@ -5,6 +5,7 @@ import com.sanketgauatm.bog.model.Conference;
 import com.sanketgauatm.bog.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomRepo {
     String insertIntoConferenceUsers(int id, User user);
@@ -13,5 +14,8 @@ public interface CustomRepo {
     void insertIntoConfirmation(String confirmationNumber, int conferenceId, int userId);
     boolean deleteConference(int conferenceId);
     List<ConferenceDto> getAllConferences();
+    boolean checkConferenceAvailability(Conference conference);
+    int generateNewId();
+    Optional<ConferenceDto> insertIntoConference(Conference conference);
 
 }
