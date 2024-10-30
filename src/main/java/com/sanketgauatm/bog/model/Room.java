@@ -43,4 +43,20 @@ public class Room {
         this.maxCapacity = maxCapacity;
     }
 
+    public Room(int id){
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", location='" + location + '\'' +
+                ", maxCapacity=" + maxCapacity +
+                ", status=" + status +
+                ", conferences=" + conferences +
+                ", createdBy=" + createdBy +
+                '}';
+    }
 }

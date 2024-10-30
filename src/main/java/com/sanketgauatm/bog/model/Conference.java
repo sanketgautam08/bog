@@ -16,7 +16,7 @@ import java.util.Set;
 public class Conference {
 
     @Id
-    @SequenceGenerator(name="conference_seq", sequenceName="conference_seq", allocationSize=1)
+//    @SequenceGenerator(name="conference_seq", sequenceName="conference_seq", allocationSize=1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "conference_id")
     private Integer id;

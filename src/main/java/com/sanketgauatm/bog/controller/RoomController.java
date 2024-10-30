@@ -42,13 +42,10 @@ public class RoomController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        try{
-            return new ResponseEntity<>(roomRepo.save(room), HttpStatusCode.valueOf(201));
-        }catch(Exception e){
-            LOGGER.error("Error while creating room\n {}", e.getMessage());
-            return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
-        }
+    public ResponseEntity<RoomDto> createRoom(@RequestBody Room room) {
+        Optional<RoomDto> roomCreated = roomRepo.createRoom(room);
+        return roomCreated.map(roomDto -> new ResponseEntity<>(roomDto, HttpStatusCode.valueOf(201)))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatusCode.valueOf(400)));
     }
 
     @PutMapping("/{id}")

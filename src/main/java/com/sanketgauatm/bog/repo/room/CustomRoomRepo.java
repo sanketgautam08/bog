@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomRoomRepo {
-    boolean createRoom(Room room);
+    Optional<RoomDto> createRoom(Room room);
     Integer getRoomCapacity(Integer roomId);
     List<RoomDto> getAllRooms();
     boolean validateCapacityAndStatus(Room room);

@@ -24,18 +24,23 @@ public class CustomRoomRepoImpl implements CustomRoomRepo {
     }
 
     @Override
-    public boolean createRoom(Room room) {
+    public Optional<RoomDto> createRoom(Room room) {
+        int roomId = generateNewId();
         String sql = """
-                INSERT INTO ROOMS(user_id, name, location, status, max_capacity)
-                values(?,?,?,?,?)
+                INSERT INTO rooms(room_id,user_id,name,location,status,max_capacity)
+                values(?,?,?,?,?,?)
                 """;
         try{
-            jdbcClient.sql(sql).params(room.getCreatedBy().getId(), room.getName(), room.getLocation(), room.getStatus(), room.getMaxCapacity()).update();
-            return true;
+            jdbcClient.sql(sql).params(roomId,room.getCreatedBy().getId(), room.getName(), room.getLocation(), room.getStatus().toString(), room.getMaxCapacity()).update();
+            return Optional.of(new RoomDto(roomId, room.getName(), room.getLocation(), room.getMaxCapacity(), room.getCreatedBy().getId(), room.getStatus()));
         }catch(Exception e){
             LOGGER.error("Error creating room: {}", e.getMessage());
-            return false;
+            return Optional.empty();
         }
+    }
+
+    private int generateNewId() {
+        return jdbcClient.sql("select nextval('rooms_seq')").query(Integer.class).single();
     }
 
     @Override
