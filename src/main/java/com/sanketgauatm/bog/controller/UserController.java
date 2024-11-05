@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/bog/users")
 public class UserController {
 
     private final UserRepo userRepo;

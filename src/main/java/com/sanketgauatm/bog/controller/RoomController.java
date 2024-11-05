@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/bog/rooms")
 public class RoomController {
 
     private final RoomRepo roomRepo;

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/conferences")
+@RequestMapping("/bog/conferences")
 public class ConferenceController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ConferenceController.class);

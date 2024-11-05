@@ -1,11 +1,69 @@
-#services:
-#    db:
-#      image: h2
-#      restart: always
-#      ports:
-#        - "9988:9988"
-#
-#      environment:
-#        H2_USERNAME: sa
-#        H2_PASSWORD: password
-#        H2_DB: bog
+services:
+
+  back-office:
+    image: bog-app:latest
+#    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/conference
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+    networks:
+      conference:
+        ipv4_address: 192.168.92.22
+
+  conference-gateway:
+    image: conference:latest
+#    restart: always
+    ports:
+      - "9090:9090"
+    depends_on:
+      - back-office
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/conference
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+#      SPRING_JPA.SHOW_SQL: true
+    networks:
+      conference:
+        ipv4_address: 192.168.92.23
+
+  api-gateway:
+    image: api-gateway:latest
+    ports:
+      - "8090:8090"
+    depends_on:
+      - conference-gateway
+    environment:
+      CONFERENCE_ROUTE_URI: http://conference-gateway:9090
+      BOG_ROUTE_URL: http://back-office:8080
+    networks:
+      conference:
+        ipv4_address: 192.168.92.24
+
+  db:
+    image: 'postgres:16'
+    container_name: db
+#    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: conference
+    networks:
+      conference:
+        ipv4_address: 192.168.92.19
+
+
+networks:
+  conference:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.92.0/24"
+
