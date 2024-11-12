@@ -18,9 +18,11 @@ public class UserController {
 
     private final UserRepo userRepo;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
     public UserController(UserRepo userRepo) {
         this.userRepo = userRepo;
     }
+
     @GetMapping("/")
     public ResponseEntity<List<UserDto>> getAllUsers(){
         Optional<List<UserDto>> users = userRepo.getAllUsers();
@@ -39,5 +41,14 @@ public class UserController {
             LOGGER.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatusCode.valueOf(400));
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id){
+        if(userRepo.findById(id).isEmpty()){
+            throw new IllegalArgumentException("User id does not exist");
+        }
+        userRepo.deleteById(id);
+        return  ResponseEntity.ok().build();
     }
 }
